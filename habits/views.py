@@ -20,10 +20,6 @@ class HabitViewSet(viewsets.ModelViewSet):
         return Habit.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Автоматически присваиваем пользователя при создании
-        serializer.save(user=self.request.user)
-
-    def perform_create(self, serializer):
         instance = serializer.save(user=self.request.user)
         # Запланировать напоминание через 1 час
         send_habit_reminder.apply_async(
