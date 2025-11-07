@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions
 from .models import Habit
 from .serializers import HabitSerializer
 from rest_framework.permissions import IsAuthenticated
+from habits.tasks import send_habit_reminder
 
 
 class PublicHabitViewSet(viewsets.ReadOnlyModelViewSet):
@@ -21,3 +22,11 @@ class HabitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Автоматически присваиваем пользователя при создании
         serializer.save(user=self.request.user)
+
+    def perform_create(self, serializer):
+        instance = serializer.save(user=self.request.user)
+        # Запланировать напоминание через 1 час
+        send_habit_reminder.apply_async(
+            args=[instance.id],
+            countdown=3600  # 1 час в секундах
+        )
