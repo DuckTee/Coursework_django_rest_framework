@@ -8,27 +8,78 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Habit',
+            name="Habit",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('place', models.CharField(max_length=100, verbose_name='Место')),
-                ('time', models.TimeField(verbose_name='Время выполнения')),
-                ('action', models.TextField(verbose_name='Действие')),
-                ('is_pleasant', models.BooleanField(default=False, verbose_name='Приятная привычка')),
-                ('periodicity', models.PositiveIntegerField(default=1, help_text='Сколько дней между выполнениями (1–7)', verbose_name='Периодичность (дни)')),
-                ('reward', models.CharField(blank=True, help_text='Что вы получите за выполнение (если нет связанной привычки)', max_length=100, verbose_name='Вознаграждение')),
-                ('execution_time', models.PositiveIntegerField(help_text='Не более 120 секунд', verbose_name='Время на выполнение (сек)')),
-                ('is_public', models.BooleanField(default=False, help_text='Если включено, привычка будет видна другим пользователям', verbose_name='Публичная привычка')),
-                ('related_habit', models.ForeignKey(blank=True, help_text='Выберите приятную привычку, которая будет вознаграждением', limit_choices_to={'is_pleasant': True}, null=True, on_delete=django.db.models.deletion.SET_NULL, to='habits.habit', verbose_name='Связанная приятная привычка')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("place", models.CharField(max_length=100, verbose_name="Место")),
+                ("time", models.TimeField(verbose_name="Время выполнения")),
+                ("action", models.TextField(verbose_name="Действие")),
+                (
+                    "is_pleasant",
+                    models.BooleanField(
+                        default=False, verbose_name="Приятная привычка"
+                    ),
+                ),
+                (
+                    "periodicity",
+                    models.PositiveIntegerField(
+                        default=1,
+                        help_text="Сколько дней между выполнениями (1–7)",
+                        verbose_name="Периодичность (дни)",
+                    ),
+                ),
+                (
+                    "reward",
+                    models.CharField(
+                        blank=True,
+                        help_text="Что вы получите за выполнение (если нет связанной привычки)",
+                        max_length=100,
+                        verbose_name="Вознаграждение",
+                    ),
+                ),
+                (
+                    "execution_time",
+                    models.PositiveIntegerField(
+                        help_text="Не более 120 секунд",
+                        verbose_name="Время на выполнение (сек)",
+                    ),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Если включено, привычка будет видна другим пользователям",
+                        verbose_name="Публичная привычка",
+                    ),
+                ),
+                (
+                    "related_habit",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Выберите приятную привычку, которая будет вознаграждением",
+                        limit_choices_to={"is_pleasant": True},
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="habits.habit",
+                        verbose_name="Связанная приятная привычка",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Привычка',
-                'verbose_name_plural': 'Привычки',
+                "verbose_name": "Привычка",
+                "verbose_name_plural": "Привычки",
             },
         ),
     ]

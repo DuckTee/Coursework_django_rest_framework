@@ -13,17 +13,18 @@ class PublicHabitViewSet(viewsets.ReadOnlyModelViewSet):
 
     @swagger_auto_schema(
         operation_description="Получить список публичных привычек",
-        responses={200: HabitSerializer(many=True)}
+        responses={200: HabitSerializer(many=True)},
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Получить детали публичной привычки",
-        responses={200: HabitSerializer()}
+        responses={200: HabitSerializer()},
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+
 
 class HabitViewSet(viewsets.ModelViewSet):
     queryset = Habit.objects.all()
@@ -35,35 +36,30 @@ class HabitViewSet(viewsets.ModelViewSet):
         return Habit.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Автоматически присваиваем пользователя при создании
-        serializer.save(user=self.request.user)
-
-    def perform_create(self, serializer):
         instance = serializer.save(user=self.request.user)
         # Запланировать напоминание через 1 час
         send_habit_reminder.apply_async(
-            args=[instance.id],
-            countdown=3600  # 1 час в секундах
+            args=[instance.id], countdown=3600  # 1 час в секундах
         )
 
     @swagger_auto_schema(
         operation_description="Создать новую привычку",
         request_body=HabitSerializer,
-        responses={201: HabitSerializer()}
+        responses={201: HabitSerializer()},
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Получить список привычек текущего пользователя",
-        responses={200: HabitSerializer(many=True)}
+        responses={200: HabitSerializer(many=True)},
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Получить детали привычки",
-        responses={200: HabitSerializer()}
+        responses={200: HabitSerializer()},
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -71,7 +67,7 @@ class HabitViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_description="Обновить привычку",
         request_body=HabitSerializer,
-        responses={200: HabitSerializer()}
+        responses={200: HabitSerializer()},
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
@@ -79,14 +75,13 @@ class HabitViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_description="Частично обновить привычку",
         request_body=HabitSerializer,
-        responses={200: HabitSerializer()}
+        responses={200: HabitSerializer()},
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Удалить привычку",
-        responses={204: 'No content'}
+        operation_description="Удалить привычку", responses={204: "No content"}
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

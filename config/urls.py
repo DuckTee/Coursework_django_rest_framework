@@ -14,18 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 
 from config.swagger import swagger_view, redoc_view, json_schema_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('habits.urls')),
-    path('api/users/', include('user.urls')),
-
+    path("admin/", admin.site.urls),
+    path("api/", include("habits.urls")),
+    path("api/users/", include("user.urls")),
     # Swagger URLs
-    path('swagger/', swagger_view, name='schema-swagger-ui'),
-    path('redoc/', redoc_view, name='schema-redoc'),
-    path('swagger.json/', json_schema_view, name='schema-json')
+    path("swagger/", swagger_view, name="schema-swagger-ui"),
+    path("redoc/", redoc_view, name="schema-redoc"),
+    path("swagger.json/", json_schema_view, name="schema-json"),
 ]
