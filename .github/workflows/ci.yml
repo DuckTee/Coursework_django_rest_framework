@@ -23,33 +23,33 @@ jobs:
         run: flake8 .
 
 
-#  build:
-#    needs: lint
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v3
-#
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
-#
-#      - name: Log in to Docker Hub
-#        uses: docker/login-action@v3
-#        with:
-#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-#
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: .
-#          push: true
-#          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
 
 
   deploy:
-    # needs: build
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -81,12 +81,28 @@ jobs:
             DOCKER_CMD="sudo docker"
           fi
  
-          # Login to Docker Hub if needed
-          echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | $DOCKER_CMD login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin || true
+          # Login to Docker Hub
+          echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | $DOCKER_CMD login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
  
           # Pull and run the container
-          $DOCKER_CMD pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-          $DOCKER_CMD stop myapp || true
-          $DOCKER_CMD rm myapp || true
-          $DOCKER_CMD run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          IMAGE_NAME="${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}"
+          echo "Pulling image: $IMAGE_NAME"
+          $DOCKER_CMD pull "$IMAGE_NAME"
+ 
+          # Stop and remove old container if it exists
+          $DOCKER_CMD stop myapp 2>/dev/null || true
+          $DOCKER_CMD rm myapp 2>/dev/null || true
+ 
+          # Run new container
+          echo "Starting container: myapp"
+          $DOCKER_CMD run -d --name myapp -p 80:8000 "$IMAGE_NAME"
+ 
+          # Verify container is running
+          sleep 2
+          if $DOCKER_CMD ps | grep -q myapp; then
+            echo "Container myapp is running successfully"
+          else
+            echo "Warning: Container myapp may not be running"
+            $DOCKER_CMD ps -a | grep myapp || true
+          fi
           EOF
