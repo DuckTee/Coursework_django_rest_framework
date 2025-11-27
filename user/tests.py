@@ -6,7 +6,7 @@ from user.models import User
 class UserModelTest(TestCase):
     def setUp(self):
         """Подготовка данных перед каждым тестом"""
-        self.user = User.objects.create(username="testuser", email="test@example.com")
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
 
     def test_create_user(self):
         """Тест: создание пользователя"""
@@ -50,12 +50,13 @@ class UserModelTest(TestCase):
     def test_unique_telegram_chat_id(self):
         """Тест: уникальность telegram_chat_id"""
         # Создаём пользователя с ID
-        User.objects.create(username="user2", telegram_chat_id="999999")
+        User.objects.create_user(username="user2", telegram_chat_id="999999", password="testpass123")
 
         # Пытаемся создать второго с тем же ID
         duplicate_user = User(
             username="user3", telegram_chat_id="999999"  # Повторяющийся ID
         )
+        duplicate_user.set_password("testpass123")  # Устанавливаем пароль для валидации
 
         with self.assertRaises(ValidationError):
             duplicate_user.full_clean()
